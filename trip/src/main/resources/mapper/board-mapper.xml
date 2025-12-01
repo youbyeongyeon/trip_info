@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="Board"> 
+
+    <resultMap id="postResultMap" type="com.example.demo.dto.BoardDTO">
+        <id property="postId" column="post_id" />
+        <result property="title" column="title" />
+        <result property="content" column="content" />
+        <result property="author" column="author" />
+        <result property="password" column="password" />
+        <result property="createdAt" column="created_at" />
+        <result property="countryName" column="country_name" /> 
+    </resultMap>
+
+    <!-- 대륙 전체 조회 (Controller의 findAllContinents 대응) -->
+    <!-- resultType: BoardDTO 내부의 Continent 이너 클래스 사용 -->
+    <select id="findAllContinents" resultType="com.example.demo.dto.Continent">
+        SELECT continent_id AS continentId, 
+               name 
+          FROM Continents
+      ORDER BY continent_id ASC
+    </select>
+
+    <!-- 태그 전체 조회 (Controller의 findAllTags 대응) -->
+    <!-- resultType: BoardDTO 내부의 Tag 이너 클래스 사용 -->
+    <select id="findAllTags" resultType="com.example.demo.dto.Tag">
+        SELECT tag_id AS tagId,
+               name
+          FROM Tags
+      ORDER BY tag_id ASC
+    </select>
+
+    <!-- 국가 전체 조회 -->
+    <select id="findAllCountries" resultType="com.example.demo.dto.Country">
+        SELECT country_id AS countryId,
+               name
+          FROM Countries
+      ORDER BY name ASC
+    </select>
+    
+    <!-- *********************************** -->
+    <!-- 게시글 쿼리 -->
+    <!-- *********************************** -->
+
+    <!-- 게시글 전체 조회 -->
+    <select id="selectAllPosts" resultMap="postResultMap">
+        SELECT  p.post_id,
+                p.title,
+                p.author,
+                p.created_at,
+                c.name AS country_name 
+          FROM Posts p
+        JOIN    Countries c ON p.country_id = c.country_id
+        ORDER BY p.created_at DESC
+    </select>
+
+    <!-- 게시글 등록 -->
+    <insert id="insertPost" parameterType="com.example.demo.dto.BoardDTO" useGeneratedKeys="true" keyProperty="postId">
+        INSERT INTO Posts (
+                            country_id, 
+                            title, 
+                            content, 
+                            author,
+                            password,
+                            created_at
+                          ) 
+              VALUES      ( 
+                            #{countryId}, 
+                            #{title}, 
+                            #{content},
+                            #{author},
+                            #{password},
+                            NOW()
+                          ) 
+    </insert>
+
+    <!-- 게시글-태그 연결 저장 (PostTags) 쿼리 추가 -->
+    <insert id="insertPostTag" parameterType="map">
+        INSERT INTO PostTags (post_id, tag_id)
+        VALUES (#{postId}, #{tagId})
+    </insert>
+
+    <!-- 게시글 국가별 조회 -->
+    <select id="selectPostsByCountry" parameterType="int" resultMap="postResultMap">
+        SELECT *
+          FROM Posts
+         WHERE country_id = #{countryId}
+      ORDER BY created_at DESC
+    </select>
+    
+    <!-- 게시글 태그별 조회 -->
+    <select id="selectPostsByTag" parameterType="int" resultMap="postResultMap">
+        SELECT p.post_id,
+               p.title,
+               p.author,
+               p.created_at,
+               c.name AS country_name
+          FROM Posts p
+          JOIN PostTags pt ON p.post_id = pt.post_id
+          JOIN Countries c ON p.country_id = c.country_id
+         WHERE pt.tag_id = #{tagId}
+      ORDER BY p.created_at DESC
+    </select>
+
+        <!-- 게시글 대륙별 조회 -->
+        <select id="selectPostsByContinent" parameterType="int" resultMap="postResultMap">
+                SELECT p.post_id,
+                             p.title,
+                             p.author,
+                             p.created_at,
+                             c.name AS country_name
+                    FROM Posts p
+                    JOIN Countries c ON p.country_id = c.country_id
+                 WHERE c.continent_id = #{continentId}
+            ORDER BY p.created_at DESC
+        </select>
+
+    <!-- 게시글 대륙 + 태그 동시 필터 조회 -->
+    <select id="selectPostsByContinentAndTag" parameterType="map" resultMap="postResultMap">
+        SELECT DISTINCT p.post_id,
+                        p.title,
+                        p.author,
+                        p.created_at,
+                        c.name AS country_name
+          FROM Posts p
+          JOIN Countries c ON p.country_id = c.country_id
+          JOIN PostTags pt ON p.post_id = pt.post_id
+         WHERE c.continent_id = #{continentId}
+           AND pt.tag_id = #{tagId}
+      ORDER BY p.created_at DESC
+    </select>
+    <!-- 게시글 상세 조회 -->
+    <select id="selectPostDetail" parameterType="int" resultMap="postResultMap">
+        SELECT p.post_id,
+               p.title,
+               p.content,
+               p.author,
+               p.password,
+               p.created_at,
+               c.name AS country_name
+          FROM Posts p
+          JOIN Countries c ON p.country_id = c.country_id
+          WHERE p.post_id = #{id}
+    </select>
+
+    <!-- 게시글 삭제 -->
+    <delete id="deletePost" parameterType="int">
+        DELETE FROM Posts
+         WHERE post_id = #{id}
+    </delete>
+    
+    <!-- 게시글-태그 연결 삭제 -->
+    <delete id="deletePostTags" parameterType="int">
+        DELETE FROM PostTags
+         WHERE post_id = #{id}
+    </delete>
+
+    <!-- 게시글 수정 -->
+    <update id="updatePost" parameterType="com.example.demo.dto.BoardDTO">
+        UPDATE Posts
+           SET title = #{title},
+               content = #{content}
+         WHERE post_id = #{postId}
+    </update>
+
+    <!-- 게시글에 연결된 태그 이름 조회 -->
+    <select id="selectTagNamesByPostId" parameterType="int" resultType="string">
+        SELECT t.name
+          FROM Tags t
+          JOIN PostTags pt ON t.tag_id = pt.tag_id
+         WHERE pt.post_id = #{postId}
+    </select>
+
+
+</mapper>

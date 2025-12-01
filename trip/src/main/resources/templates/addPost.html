@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>새 여행 안내 작성</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 40px; background-color: #f9f9f9; }
+        h1 { color: #333; }
+        .post-form { max-width: 600px; margin: 20px auto; padding: 20px; background-color: #fff; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .post-form div { margin-bottom: 15px; }
+        .post-form label { display: block; margin-bottom: 5px; font-weight: bold; color: #555; }
+        .post-form input[type="text"],
+        .post-form input[type="password"],
+        .post-form textarea,
+        .post-form select {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box; /* 패딩이 너비에 포함되도록 설정 */
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .post-form textarea { height: 150px; resize: vertical; }
+        .post-form select[multiple] { height: 120px; }
+        .btn-group { margin-top: 20px; }
+        .btn-group button { padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-group button[type="submit"] { background-color: #007bff; color: white; }
+        .btn-group button[type="button"] { background-color: #6c757d; color: white; }
+    </style>
+</head>
+<body>
+    
+    <form th:action="@{/posts}" method="post" class="post-form">
+        <h1>📝 새 여행 안내 작성</h1>
+
+        <!-- 1. 여행지 선택 (나라) -->
+        <div>
+            <label for="countrySelect">여행지 선택:</label>
+            <!-- 💡 Controller에서 받은 ${countries} 목록으로 드롭다운 생성 -->
+            <select id="countrySelect" name="countryId" required> 
+                <option value="">-- 여행할 나라를 선택하세요 --</option>
+                <option th:each="country : ${countries}" 
+                        th:value="${country.countryId}" 
+                        th:text="${country.name}"></option>
+            </select>
+        </div>
+
+        <!-- 2. 태그 선택 -->
+        <div>
+            <label for="tagSelect">태그 선택 (다중 선택: Ctrl/Cmd + 클릭):</label>
+            <!-- 💡 Controller에서 받은 ${tags} 목록 사용 -->
+            <select id="tagSelect" name="tags" multiple size="5"> 
+                <option th:each="tag : ${tags}" 
+                        th:value="${tag.tagId}" 
+                        th:text="${tag.name}"></option>
+            </select>
+        </div>
+        
+        <!-- 3. 제목 및 내용 -->
+        <div>
+            <label for="title">제목:</label>
+            <input type="text" id="title" name="title" required>
+        </div>
+        <div>
+            <label for="content">내용:</label>
+            <textarea id="content" name="content" rows="10" required></textarea>
+        </div>
+        
+        <!-- 4. 작성자 및 비밀번호 -->
+        <div>
+            <label for="author">작성자:</label>
+            <input type="text" id="author" name="author" required>
+        </div>
+        <div>
+            <label for="password">비밀번호 (수정/삭제용):</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        
+        <div class="btn-group">
+            <button type="submit">작성 완료</button>
+            <a th:href="@{/posts}"><button type="button">취소</button></a>
+        </div>
+    </form>
+</body>
+</html>

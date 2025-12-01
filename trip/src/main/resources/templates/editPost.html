@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>게시글 수정</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-container { max-width: 800px; margin: 0 auto; }
+        label { display:block; margin-top:12px; font-weight:600; }
+        input[type=text], textarea { width:100%; padding:8px; box-sizing:border-box; }
+        .btns { margin-top:16px; }
+        .btn { padding:8px 12px; margin-right:8px; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h2>게시글 수정</h2>
+        <div th:if="${error}" style="color:#b00; background:#ffecec; padding:10px; border-radius:4px; margin-bottom:12px;" th:text="${error}"></div>
+        <form th:object="${post}" th:action="@{/posts/{id}/edit(id=*{postId})}" method="post">
+            <input type="hidden" th:field="*{postId}" />
+
+            <label for="title">제목</label>
+            <input type="text" id="title" th:field="*{title}" />
+
+            <label for="author">작성자</label>
+            <input type="text" id="author" th:field="*{author}" />
+
+            <label for="password">수정/삭제 비밀번호</label>
+            <input type="password" id="password" th:field="*{password}" placeholder="글 작성 시 설정한 비밀번호" required />
+
+            <label for="content">내용</label>
+            <textarea id="content" rows="10" th:field="*{content}"></textarea>
+
+            <!-- 필요시 countryId, tags 등 추가 필드 삽입 가능 -->
+
+            <div class="btns">
+                <button type="submit" class="btn">저장</button>
+                <a th:href="@{/posts}" class="btn">취소</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

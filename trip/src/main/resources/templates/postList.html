@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>여행 안내 게시판</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .controls { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; background-color: #f9f9f9; }
+        .post-item { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .post-title a { text-decoration: none; color: #007bff; font-weight: bold; }
+        button, select { padding: 8px 15px; margin-right: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <h1>🌎 여행 안내 게시판</h1>
+
+    <div class="controls">
+        <h3>🔎 여행지 검색 및 필터링</h3>
+        
+        <label for="continentSelect">대륙 선택:</label>
+        <select id="continentSelect">
+            <option value="">-- 전체 대륙 --</option>
+            <option th:each="cont : ${continents}" 
+                    th:value="${cont.continentId}" 
+                    th:text="${cont.name}"></option>
+        </select>
+        
+        <label for="tagSelect">태그 선택:</label>
+        <select id="tagSelect">
+            <option value="">-- 전체 태그 --</option>
+            <option th:each="tag : ${tags}" 
+                    th:value="${tag.tagId}" 
+                    th:text="${tag.name}"></option>
+        </select>
+
+        <a th:href="@{/posts/new}">
+            <button type="button" class="btn-primary">📝 여행 안내 작성</button>
+        </a>
+        
+        <button onclick="applyFilter()">필터 적용</button>
+    </div>
+
+    <hr>
+
+    <h2>최신 게시글</h2>
+    <div th:if="${posts != null and !posts.isEmpty()}">
+        <div th:each="post : ${posts}" class="post-item">
+            <div class="post-title">
+                <a th:href="@{/posts/{id}(id=${post.postId})}" th:text="${post.title}">게시글 제목</a> 
+                <span th:text="| [${post.countryName}, ${post.tagNamesStr}] |" style="font-size: 0.9em; color: gray;">[나라 이름,태그]</span>
+                <span th:text="| 작성자: ${post.author} |" style="float: right;"></span>
+            </div>
+        </div>
+    </div>
+    <div th:if="${posts == null or posts.isEmpty()}">
+        <p>아직 작성된 여행 안내 게시글이 없습니다. 첫 글을 작성해보세요!</p>
+    </div>
+
+    <script>
+        function applyFilter() {
+            const continentId = document.getElementById('continentSelect').value;
+            const tagId = document.getElementById('tagSelect').value;
+            
+            // 💡 실제 필터링 로직: JavaScript로 선택된 값을 가져와 서버에 새 요청을 보냅니다.
+            let url = '/posts?';
+            if (continentId) {
+                url += 'continentId=' + continentId + '&';
+            }
+            if (tagId) {
+                url += 'tagId=' + tagId;
+            }
+            window.location.href = url.replace(/&$/, ''); // 끝의 & 제거 후 이동
+        }
+    </script>
+
+</body>
+</html>

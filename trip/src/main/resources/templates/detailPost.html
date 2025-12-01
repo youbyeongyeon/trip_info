@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|여행 안내: ${post.title}|">게시글 제목</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .post-container { border: 1px solid #ccc; padding: 20px; border-radius: 5px; }
+        .post-header { border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-bottom: 15px; }
+        .post-meta { font-size: 0.9em; color: gray; margin-bottom: 15px; }
+        .post-content { line-height: 1.6; white-space: pre-wrap; }
+        .btn-group button { padding: 8px 15px; margin-right: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="post-container">
+        <div th:if="${error}" style="color:#b00; background:#ffecec; padding:10px; border-radius:4px; margin-bottom:12px;" th:text="${error}"></div>
+        <div th:object="${post}">
+        
+        <!-- 헤더 및 제목 -->
+        <div class="post-header">
+            <h1 th:text="*{title}">[게시글 제목]</h1>
+            <p class="post-meta">
+                작성자: <span th:text="*{author}">[작성자]</span> 
+                | 여행지: <span th:text="*{countryName}">[나라 이름]</span>
+                | 작성일: <span th:text="*{createdAt}">[2025-11-13]</span>
+            </p>
+        </div>
+
+        <!-- 내용 -->
+        <div class="post-content">
+            <p th:text="*{content}">[여기에 게시글 내용이 들어갑니다.]</p>
+        </div>
+
+        <hr>
+        
+        <!-- 버튼 그룹 -->
+        <div class="btn-group">
+            <a th:href="@{/posts}"><button>목록으로</button></a>
+            <!-- 수정 및 삭제는 {id}를 이용합니다. -->
+            <a th:href="@{/posts/{id}/edit(id=*{postId})}"><button type="button">수정</button></a>
+            <form th:action="@{/posts/{id}/delete(id=*{postId})}" method="post" style="display:inline" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                <input type="password" name="password" placeholder="삭제 비밀번호" required style="margin-right:6px;" />
+                <button type="submit">삭제</button>
+            </form>
+        </div>
+    </div>
+    
+</body>
+</html>
