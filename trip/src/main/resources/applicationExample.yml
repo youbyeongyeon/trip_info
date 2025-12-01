@@ -1,0 +1,16 @@
+#어플리케이션 포트 -> 디폴트가 8080 들여쓰기 중요 꼭 스페이스바로 들여쓰기 하기
+server:
+  port: 8080
+
+# database 연동 설정
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:{port번호}/{db이름}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+        
+    username: 
+    password:
+# mybatis
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  config-location: classpath:mybatis-config.xml
